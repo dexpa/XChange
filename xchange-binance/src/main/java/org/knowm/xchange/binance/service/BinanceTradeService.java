@@ -13,6 +13,7 @@ import org.knowm.xchange.binance.dto.trade.BinanceOrder;
 import org.knowm.xchange.binance.dto.trade.BinanceTrade;
 import org.knowm.xchange.binance.dto.trade.OrderType;
 import org.knowm.xchange.binance.dto.trade.TimeInForce;
+import org.knowm.xchange.binance.service.trade.params.orders.BinanceOrderQueryParam;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
@@ -255,29 +256,72 @@ public class BinanceTradeService extends BinanceTradeServiceRaw implements Trade
   public Collection<Order> getOrder(OrderQueryParams... params) throws IOException {
     Collection<Order> orders = new ArrayList<>();
     for (OrderQueryParams param : params) {
-      if (!(param instanceof OrderQueryParamCurrencyPair)) {
-        throw new ExchangeException(
-            "Parameters must be an instance of OrderQueryParamCurrencyPair");
-      }
-      OrderQueryParamCurrencyPair orderQueryParamCurrencyPair = (OrderQueryParamCurrencyPair) param;
-      if (orderQueryParamCurrencyPair.getCurrencyPair() == null
-          || orderQueryParamCurrencyPair.getOrderId() == null) {
-        throw new ExchangeException(
-            "You need to provide the currency pair and the order id to query an order.");
-      }
 
-      orders.add(
-          BinanceAdapters.adaptOrder(
-              super.orderStatus(
-                  orderQueryParamCurrencyPair.getCurrencyPair(),
-                  BinanceAdapters.id(orderQueryParamCurrencyPair.getOrderId()),
-                  null,
-                  (Long)
-                      exchange
-                          .getExchangeSpecification()
-                          .getExchangeSpecificParametersItem("recvWindow"),
-                  getTimestamp())));
+      if(param instanceof BinanceOrderQueryParam) {
+        BinanceOrderQueryParam binanceOrderQueryParam = (BinanceOrderQueryParam) param;
+        if(binanceOrderQueryParam.getCurrencyPair() == null) {
+          throw new ExchangeException(
+            "You need to provide the currency pair to query an order."
+          );
+        }
+        if(binanceOrderQueryParam.getOrderId() != null) {
+          addOrderById(
+            orders,
+            binanceOrderQueryParam.getCurrencyPair(),
+            binanceOrderQueryParam.getOrderId()
+          );
+        } else {
+          Long offsetOrderId = binanceOrderQueryParam.getOffsetOrderId() == null ?
+            null : BinanceAdapters.id(binanceOrderQueryParam.getOffsetOrderId());
+          Collection<BinanceOrder> binanceOrders = super.allOrders(
+            binanceOrderQueryParam.getCurrencyPair(),
+            offsetOrderId,
+            binanceOrderQueryParam.getLimit(),
+            (Long) exchange.getExchangeSpecification().getExchangeSpecificParametersItem("recvWindow"),
+            getTimestamp()
+          );
+          binanceOrders.forEach(binanceOrder -> orders.add(BinanceAdapters.adaptOrder(binanceOrder)));
+        }
+      } else if(param instanceof OrderQueryParamCurrencyPair) {
+        OrderQueryParamCurrencyPair orderQueryParamCurrencyPair = (OrderQueryParamCurrencyPair) param;
+        if(orderQueryParamCurrencyPair.getCurrencyPair() == null) {
+          throw new ExchangeException(
+            "You need to provide the currency pair to query an order."
+          );
+        }
+        if(orderQueryParamCurrencyPair.getOrderId() != null) {
+          addOrderById(
+            orders,
+            orderQueryParamCurrencyPair.getCurrencyPair(),
+            orderQueryParamCurrencyPair.getOrderId()
+          );
+        } else {
+          Collection<BinanceOrder> binanceOrders = super.allOrders(
+            orderQueryParamCurrencyPair.getCurrencyPair(),
+            null,
+            null,
+            (Long) exchange.getExchangeSpecification().getExchangeSpecificParametersItem("recvWindow"),
+            getTimestamp()
+          );
+          binanceOrders.forEach(binanceOrder -> orders.add(BinanceAdapters.adaptOrder(binanceOrder)));
+        }
+      } else {
+        throw new ExchangeException(
+          "Parameters must be an instance of BinanceOrderQueryParams or OrderQueryParamCurrencyPair"
+        );
+      }
     }
     return orders;
   }
+
+  private void addOrderById(Collection<Order> buffer, CurrencyPair pair, String orderId) throws IOException {
+    buffer.add(BinanceAdapters.adaptOrder(super.orderStatus(
+      pair,
+      BinanceAdapters.id(orderId),
+      null,
+      (Long) exchange.getExchangeSpecification().getExchangeSpecificParametersItem("recvWindow"),
+      getTimestamp()
+    )));
+  }
+
 }

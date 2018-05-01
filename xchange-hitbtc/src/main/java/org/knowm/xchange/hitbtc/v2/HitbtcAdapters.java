@@ -1,13 +1,10 @@
 package org.knowm.xchange.hitbtc.v2;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
@@ -23,10 +20,7 @@ import org.knowm.xchange.dto.marketdata.Trades;
 import org.knowm.xchange.dto.meta.CurrencyMetaData;
 import org.knowm.xchange.dto.meta.CurrencyPairMetaData;
 import org.knowm.xchange.dto.meta.ExchangeMetaData;
-import org.knowm.xchange.dto.trade.LimitOrder;
-import org.knowm.xchange.dto.trade.OpenOrders;
-import org.knowm.xchange.dto.trade.UserTrade;
-import org.knowm.xchange.dto.trade.UserTrades;
+import org.knowm.xchange.dto.trade.*;
 import org.knowm.xchange.hitbtc.v2.dto.HitbtcBalance;
 import org.knowm.xchange.hitbtc.v2.dto.HitbtcOrder;
 import org.knowm.xchange.hitbtc.v2.dto.HitbtcOrderBook;
@@ -161,27 +155,44 @@ public class HitbtcAdapters {
     return new Trades(trades, lastTradeId, Trades.TradeSortType.SortByTimestamp);
   }
 
-  public static LimitOrder adaptOrder(HitbtcOrder hitbtcOrder) {
+  public static Order adaptOrder(HitbtcOrder hitbtcOrder) {
     OrderType type = adaptOrderType(hitbtcOrder.side);
 
-    LimitOrder order =
-        new LimitOrder(
-            type,
-            hitbtcOrder.quantity,
-            adaptSymbol(hitbtcOrder.symbol),
-            hitbtcOrder.clientOrderId,
-            hitbtcOrder.getCreatedAt(),
-            hitbtcOrder.price,
-            null, // exchange does not provide average price
-            hitbtcOrder.cumQuantity,
-            null,
-            convertOrderStatus(hitbtcOrder.status));
+    if(hitbtcOrder.type.equals("market")) {
 
-    return order;
+      return new MarketOrder(
+        type,
+        hitbtcOrder.quantity,
+        adaptSymbol(hitbtcOrder.symbol),
+        hitbtcOrder.clientOrderId,
+        hitbtcOrder.getCreatedAt(),
+        null,
+        hitbtcOrder.cumQuantity,
+        null,
+        convertOrderStatus(hitbtcOrder.status)
+      );
+
+    } else {
+
+      return new LimitOrder(
+        type,
+        hitbtcOrder.quantity,
+        adaptSymbol(hitbtcOrder.symbol),
+        hitbtcOrder.clientOrderId,
+        hitbtcOrder.getCreatedAt(),
+        hitbtcOrder.price,
+        null, // exchange does not provide average price
+        hitbtcOrder.cumQuantity,
+        null,
+        convertOrderStatus(hitbtcOrder.status)
+      );
+
+    }
+
   }
 
-  public static List<LimitOrder> adaptOrders(List<HitbtcOrder> openOrdersRaw) {
-    List<LimitOrder> openOrders = new ArrayList<>(openOrdersRaw.size());
+  public static List<Order> adaptOrders(List<HitbtcOrder> openOrdersRaw) {
+    List<Order> openOrders = new ArrayList<>(openOrdersRaw.size());
 
     for (HitbtcOrder hitbtcOrder : openOrdersRaw) {
       openOrders.add(adaptOrder(hitbtcOrder));
@@ -191,7 +202,13 @@ public class HitbtcAdapters {
   }
 
   public static OpenOrders adaptOpenOrders(List<HitbtcOrder> openOrdersRaw) {
-    return new OpenOrders(adaptOrders(openOrdersRaw));
+    List<LimitOrder> limitOrders = new ArrayList<>();
+    adaptOrders(openOrdersRaw).forEach(order -> {
+      if(order instanceof LimitOrder) {
+        limitOrders.add((LimitOrder) order);
+      }
+    });
+    return new OpenOrders(limitOrders);
   }
 
   public static OrderType adaptOrderType(String side) {
@@ -247,6 +264,12 @@ public class HitbtcAdapters {
   public static String adaptCurrencyPair(CurrencyPair pair) {
 
     return pair == null ? null : pair.base.getCurrencyCode() + pair.counter.getCurrencyCode();
+  }
+
+  private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+  public static String adaptTimestamp(Long timestamp) {
+    return dateFormat.format(new Date(timestamp));
   }
 
   public static HitbtcSide getSide(OrderType type) {

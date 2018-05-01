@@ -2,6 +2,9 @@ package org.knowm.xchange.hitbtc.v2.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.knowm.xchange.Exchange;
@@ -66,18 +69,18 @@ public class HitbtcTradeServiceRaw extends HitbtcBaseService {
   }
 
   // todo: support more parameters
-  public List<HitbtcOwnTrade> getTradeHistoryRaw(String symbol, long limit, long offset)
+  public List<HitbtcOwnTrade> getTradeHistoryRaw(String symbol, Integer limit, Long offset, String from, String till)
       throws IOException {
-    return hitbtc.getHitbtcTrades(symbol, null, null, null, null, limit, offset);
+    return hitbtc.getHitbtcTrades(symbol, null, null, from, till, limit, offset);
   }
 
-  public HitbtcOrder getHitbtcOrder(String symbol, String orderId) throws IOException {
-    List<HitbtcOrder> orders = hitbtc.getHitbtcOrder(symbol, orderId);
+  public List<HitbtcOrder> getHitbtcOrder(String symbol, String orderId, String from, String till, Long limit, Long offset) throws IOException {
+    List<HitbtcOrder> orders = hitbtc.getHitbtcOrder(symbol, orderId, from, till, limit, offset);
 
     if (orders == null || orders.size() == 0) {
       return null;
     } else {
-      return orders.iterator().next();
+      return orders;
     }
   }
 

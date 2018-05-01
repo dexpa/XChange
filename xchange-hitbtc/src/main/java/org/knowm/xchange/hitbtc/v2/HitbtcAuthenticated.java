@@ -116,8 +116,8 @@ public interface HitbtcAuthenticated extends Hitbtc {
       @QueryParam("by") String sortBy,
       @QueryParam("from") String from,
       @QueryParam("till") String till,
-      @QueryParam("limit") long limit,
-      @QueryParam("offset") long offset)
+      @QueryParam("limit") Integer limit,
+      @QueryParam("offset") Long offset)
       throws IOException, HitbtcException;
 
   // TODO add query params
@@ -143,7 +143,12 @@ public interface HitbtcAuthenticated extends Hitbtc {
   @GET
   @Path("history/order")
   List<HitbtcOrder> getHitbtcOrder(
-      @PathParam("symbol") String symbol, @PathParam("clientOrderId") String clientOrderId)
+      @QueryParam("symbol") String symbol,
+      @QueryParam("clientOrderId") String clientOrderId,
+      @QueryParam("from") String from,
+      @QueryParam("till") String till,
+      @QueryParam("limit") Long limit,
+      @QueryParam("offset") Long offset)
       throws IOException, HitbtcException;
 
   @GET
