@@ -14,11 +14,20 @@ val dependencies = Seq(
 )
 
 lazy val `xchange-core` = (project in file("xchange-core")).settings(
+    sources in (Compile, doc) := Seq.empty,
+    publishArtifact in (Compile, packageDoc) := false,
     libraryDependencies ++= dependencies
 )
 
-lazy val `xchange-binance` = (project in file("xchange-binance")).dependsOn(`xchange-core`)
-lazy val `xchange-hitbtc` = (project in file("xchange-hitbtc")).dependsOn(`xchange-core`)
+lazy val `xchange-binance` = (project in file("xchange-binance")).settings(
+    sources in (Compile, doc) := Seq.empty,
+    publishArtifact in (Compile, packageDoc) := false
+).dependsOn(`xchange-core`)
+
+lazy val `xchange-hitbtc` = (project in file("xchange-hitbtc")).settings(
+    sources in (Compile, doc) := Seq.empty,
+    publishArtifact in (Compile, packageDoc) := false
+).dependsOn(`xchange-core`)
 
 lazy val `xchange` = (project in file(".")).dependsOn(
     `xchange-core`,
