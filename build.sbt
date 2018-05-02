@@ -25,3 +25,6 @@ lazy val `xchange` = (project in file(".")).dependsOn(
     `xchange-binance`,
     `xchange-hitbtc`
 )
+
+sources in (Compile, doc) := Seq.empty
+publishArtifact in (Compile, packageDoc) := false
