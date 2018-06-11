@@ -2,13 +2,10 @@ package org.knowm.xchange.poloniex.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.OrderType;
@@ -35,9 +32,7 @@ import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamsAll;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamsTimeSpan;
-import org.knowm.xchange.service.trade.params.orders.DefaultOpenOrdersParamCurrencyPair;
-import org.knowm.xchange.service.trade.params.orders.OpenOrdersParamCurrencyPair;
-import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
+import org.knowm.xchange.service.trade.params.orders.*;
 import org.knowm.xchange.utils.DateUtils;
 
 public class PoloniexTradeService extends PoloniexTradeServiceRaw implements TradeService {
@@ -201,6 +196,48 @@ public class PoloniexTradeService extends PoloniexTradeServiceRaw implements Tra
     // but this returns fills by order, that we need need to calculate the remaining quantity,
     // average fill price, and order type (in adapter).
     throw new NotYetImplementedForExchangeException();
+  }
+
+  @Override
+  public Collection<Order> getOrder(OrderQueryParams... orderQueryParams) throws IOException {
+    List<Order> orders = new ArrayList<>();
+    for(OrderQueryParams params : orderQueryParams) {
+      if(params instanceof OrderQueryParamCurrencyPair) {
+        OrderQueryParamCurrencyPair currencyPairParams = (OrderQueryParamCurrencyPair) params;
+        if(currencyPairParams.getOrderId() != null) {
+          UserTrades trades = getOrderTrades(
+            currencyPairParams.getOrderId(),
+            currencyPairParams.getCurrencyPair()
+          );
+          Order order = PoloniexAdapters.userTradesToOrder(
+            trades,
+            currencyPairParams.getCurrencyPair(),
+            currencyPairParams.getOrderId()
+          );
+          if(order != null) { orders.add(order); }
+        } else {
+          Long endTimestamp = System.currentTimeMillis();
+          Long startTimestamp = endTimestamp - 180L * 24L * 3600L * 1000L;
+          UserTrades trades = getTradeHistory(currencyPairParams.getCurrencyPair(), startTimestamp, endTimestamp);
+          Map<String, ArrayList<UserTrade>> orderMap = new HashMap<>();
+          for (UserTrade trade : trades.getUserTrades()) {
+            ArrayList<UserTrade> buffer = orderMap.computeIfAbsent(trade.getOrderId(), (orderId) -> new ArrayList<>());
+            buffer.add(trade);
+          }
+          for (String orderId : orderMap.keySet()) {
+            ArrayList<UserTrade> buffer = orderMap.get(orderId);
+            Order order = PoloniexAdapters.userTradesToOrder(
+              new UserTrades(buffer, TradeSortType.SortByID),
+              currencyPairParams.getCurrencyPair(),
+              orderId
+            );
+            if(order != null) { orders.add(order); }
+          }
+        }
+      }
+    }
+    orders.sort((o1, o2) -> o2.getTimestamp().compareTo(o1.getTimestamp()));
+    return orders;
   }
 
   public final UserTrades getOrderTrades(Order order) throws IOException {

@@ -4,6 +4,7 @@ import static org.knowm.xchange.dto.account.FundingRecord.Type.DEPOSIT;
 import static org.knowm.xchange.dto.account.FundingRecord.Type.WITHDRAWAL;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.LoanOrder;
+import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.account.Balance;
 import org.knowm.xchange.dto.account.FundingRecord;
@@ -23,10 +25,7 @@ import org.knowm.xchange.dto.marketdata.Trades.TradeSortType;
 import org.knowm.xchange.dto.meta.CurrencyMetaData;
 import org.knowm.xchange.dto.meta.CurrencyPairMetaData;
 import org.knowm.xchange.dto.meta.ExchangeMetaData;
-import org.knowm.xchange.dto.trade.FixedRateLoanOrder;
-import org.knowm.xchange.dto.trade.LimitOrder;
-import org.knowm.xchange.dto.trade.OpenOrders;
-import org.knowm.xchange.dto.trade.UserTrade;
+import org.knowm.xchange.dto.trade.*;
 import org.knowm.xchange.poloniex.dto.LoanInfo;
 import org.knowm.xchange.poloniex.dto.account.PoloniexBalance;
 import org.knowm.xchange.poloniex.dto.account.PoloniexLoan;
@@ -208,6 +207,41 @@ public class PoloniexAdapters {
         .id(openOrder.getOrderNumber())
         .timestamp(timestamp)
         .build();
+  }
+
+  public static Order userTradesToOrder(UserTrades trades, CurrencyPair pair, String orderId) {
+    if(trades.getUserTrades().size() > 0) {
+      BigDecimal filledAmount = new BigDecimal(0);
+      BigDecimal averagePrice = new BigDecimal(0 );
+      BigDecimal summaryFee = new BigDecimal(0);
+      OrderType orderType = null;
+      Date orderDate = null;
+      for(UserTrade trade : trades.getUserTrades()) {
+        BigDecimal newVolume = filledAmount.add(trade.getOriginalAmount());
+        BigDecimal newAverage = trade.getOriginalAmount().multiply(trade.getPrice()).add(filledAmount.multiply(averagePrice));
+        averagePrice = newAverage.divide(newVolume, 8, RoundingMode.HALF_UP);
+        filledAmount = newVolume;
+        summaryFee = summaryFee.add(trade.getFeeAmount());
+        orderType = trade.getType();
+        if(orderDate == null) {
+          orderDate = trade.getTimestamp();
+        }
+      }
+      return new LimitOrder(
+              orderType,
+              filledAmount,
+              pair,
+              orderId,
+              orderDate,
+              averagePrice,
+              averagePrice,
+              filledAmount,
+              summaryFee,
+              Order.OrderStatus.FILLED
+      );
+    } else {
+      return null;
+    }
   }
 
   public static UserTrade adaptPoloniexUserTrade(
