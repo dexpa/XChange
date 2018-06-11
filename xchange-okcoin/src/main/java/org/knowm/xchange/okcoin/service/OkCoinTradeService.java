@@ -1,13 +1,7 @@
 package org.knowm.xchange.okcoin.service;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.currency.CurrencyPair;
@@ -18,12 +12,14 @@ import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
 import org.knowm.xchange.dto.trade.StopOrder;
 import org.knowm.xchange.dto.trade.UserTrades;
+import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.exceptions.NotAvailableFromExchangeException;
 import org.knowm.xchange.exceptions.NotYetImplementedForExchangeException;
 import org.knowm.xchange.okcoin.OkCoinAdapters;
 import org.knowm.xchange.okcoin.dto.trade.OkCoinBatchTradeResult;
 import org.knowm.xchange.okcoin.dto.trade.OkCoinOrderResult;
 import org.knowm.xchange.okcoin.dto.trade.OkCoinTradeResult;
+import org.knowm.xchange.okcoin.service.trade.params.orders.OkCoinOrderQueryParam;
 import org.knowm.xchange.service.trade.TradeService;
 import org.knowm.xchange.service.trade.params.CancelOrderByCurrencyPair;
 import org.knowm.xchange.service.trade.params.CancelOrderByIdParams;
@@ -32,9 +28,7 @@ import org.knowm.xchange.service.trade.params.DefaultTradeHistoryParamPaging;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrencyPair;
 import org.knowm.xchange.service.trade.params.TradeHistoryParamPaging;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
-import org.knowm.xchange.service.trade.params.orders.DefaultOpenOrdersParamCurrencyPair;
-import org.knowm.xchange.service.trade.params.orders.OpenOrdersParamCurrencyPair;
-import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
+import org.knowm.xchange.service.trade.params.orders.*;
 
 public class OkCoinTradeService extends OkCoinTradeServiceRaw implements TradeService {
 
@@ -243,6 +237,62 @@ public class OkCoinTradeService extends OkCoinTradeServiceRaw implements TradeSe
   @Override
   public Collection<Order> getOrder(String... orderIds) throws IOException {
     throw new NotYetImplementedForExchangeException();
+  }
+
+  @Override
+  public Collection<Order> getOrder(OrderQueryParams... params) throws IOException {
+    Collection<Order> orders = new ArrayList<>();
+    for (OrderQueryParams param : params) {
+      OkCoinOrderResult orderResults;
+      if(param instanceof OkCoinOrderQueryParam) {
+        OkCoinOrderQueryParam okCoinParam = (OkCoinOrderQueryParam) param;
+        if(okCoinParam.getOrderId() != null) {
+          orderResults = getOrder(
+            Long.valueOf(okCoinParam.getOrderId()),
+            OkCoinAdapters.adaptSymbol(okCoinParam.getCurrencyPair())
+          );
+        } else {
+          Integer pageNumber = okCoinParam.getPageNumber();
+          Integer pageLength = okCoinParam.getPageLength();
+          if (pageNumber == null) {
+            pageNumber = 1;
+          }
+          if (pageLength == null) {
+            pageLength = 200;
+          }
+          orderResults = getOrderHistory(
+            OkCoinAdapters.adaptSymbol(okCoinParam.getCurrencyPair()),
+            ORDER_STATUS_FILLED,
+            pageNumber.toString(),
+            pageLength.toString()
+          );
+        }
+      } else if (param instanceof OrderQueryParamCurrencyPair) {
+        OrderQueryParamCurrencyPair currencyPairParams = (OrderQueryParamCurrencyPair) param;
+        if(currencyPairParams.getOrderId() != null) {
+          orderResults = getOrder(
+            Long.valueOf(currencyPairParams.getOrderId()),
+            OkCoinAdapters.adaptSymbol(currencyPairParams.getCurrencyPair())
+          );
+        } else {
+          orderResults = getOrderHistory(
+            OkCoinAdapters.adaptSymbol(currencyPairParams.getCurrencyPair()),
+            ORDER_STATUS_FILLED,
+            "1",
+            "200"
+          );
+        }
+      } else {
+        throw new ExchangeException(
+          "Parameters must be an instance of " +
+          "OkCoinOrderQueryParam or " +
+          "OrderQueryParamCurrencyPair"
+        );
+      }
+      orders.addAll(OkCoinAdapters.adaptOrders(Collections.singletonList(orderResults)));
+    }
+
+    return orders;
   }
 
   public static class OkCoinTradeHistoryParams extends DefaultTradeHistoryParamPaging

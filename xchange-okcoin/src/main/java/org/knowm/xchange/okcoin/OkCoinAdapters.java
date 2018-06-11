@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import java.util.stream.Stream;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
+import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.OrderStatus;
 import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.account.AccountInfo;
@@ -26,10 +27,7 @@ import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.marketdata.Trade;
 import org.knowm.xchange.dto.marketdata.Trades;
 import org.knowm.xchange.dto.marketdata.Trades.TradeSortType;
-import org.knowm.xchange.dto.trade.LimitOrder;
-import org.knowm.xchange.dto.trade.OpenOrders;
-import org.knowm.xchange.dto.trade.UserTrade;
-import org.knowm.xchange.dto.trade.UserTrades;
+import org.knowm.xchange.dto.trade.*;
 import org.knowm.xchange.okcoin.dto.account.OkCoinAccountRecords;
 import org.knowm.xchange.okcoin.dto.account.OkCoinFunds;
 import org.knowm.xchange.okcoin.dto.account.OkCoinFuturesInfoCross;
@@ -169,6 +167,18 @@ public final class OkCoinAdapters {
     return new OpenOrders(openOrders);
   }
 
+  public static List<Order> adaptOrders(List<OkCoinOrderResult> orderResults) {
+    List<Order> resultOrders = new ArrayList<>();
+
+    for (OkCoinOrderResult orderResult : orderResults) {
+      OkCoinOrder[] orders = orderResult.getOrders();
+      for (OkCoinOrder singleOrder : orders) {
+        resultOrders.add(adaptOrder(singleOrder));
+      }
+    }
+    return resultOrders;
+  }
+
   public static OpenOrders adaptOpenOrdersFutures(List<OkCoinFuturesOrderResult> orderResults) {
     List<LimitOrder> openOrders = new ArrayList<>();
 
@@ -247,6 +257,36 @@ public final class OkCoinAdapters {
         order.getDealAmount(),
         null,
         adaptOrderStatus(order.getStatus()));
+  }
+
+  private static Order adaptOrder(OkCoinOrder order) {
+
+    if(order.getType().equals("buy_market") || order.getType().equals("sell_market")) {
+      return new MarketOrder(
+              adaptOrderType(order.getType()),
+              order.getAmount(),
+              adaptSymbol(order.getSymbol()),
+              String.valueOf(order.getOrderId()),
+              order.getCreateDate(),
+              order.getAveragePrice(),
+              order.getDealAmount(),
+              null,
+              adaptOrderStatus(order.getStatus())
+      );
+    } else {
+      return new LimitOrder(
+              adaptOrderType(order.getType()),
+              order.getAmount(),
+              adaptSymbol(order.getSymbol()),
+              String.valueOf(order.getOrderId()),
+              order.getCreateDate(),
+              order.getPrice(),
+              order.getAveragePrice(),
+              order.getDealAmount(),
+              null,
+              adaptOrderStatus(order.getStatus())
+      );
+    }
   }
 
   public static LimitOrder adaptOpenOrderFutures(OkCoinFuturesOrder order) {
