@@ -45,6 +45,9 @@ public class HuobiTradeService extends HuobiTradeServiceRaw implements TradeServ
     if(tradeHistoryParams instanceof TradeHistoryParamLimit) {
       size = ((TradeHistoryParamLimit) tradeHistoryParams).getLimit();
     }
+    if(tradeHistoryParams instanceof TradeHistoryParamPaging) {
+      size = ((TradeHistoryParamPaging) tradeHistoryParams).getPageLength();
+    }
     return HuobiAdapters.adaptTrades(getHuobiTrades(
             currencyPair,
             null,
