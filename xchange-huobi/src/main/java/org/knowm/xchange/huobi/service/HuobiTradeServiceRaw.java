@@ -1,20 +1,23 @@
 package org.knowm.xchange.huobi.service;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.exceptions.ExchangeException;
+import org.knowm.xchange.huobi.HuobiAdapters;
 import org.knowm.xchange.huobi.HuobiUtils;
 import org.knowm.xchange.huobi.dto.trade.HuobiCreateOrderRequest;
 import org.knowm.xchange.huobi.dto.trade.HuobiOrder;
-import org.knowm.xchange.huobi.dto.trade.results.HuobiCancelOrderResult;
-import org.knowm.xchange.huobi.dto.trade.results.HuobiOrderInfoResult;
-import org.knowm.xchange.huobi.dto.trade.results.HuobiOrderResult;
-import org.knowm.xchange.huobi.dto.trade.results.HuobiOrdersResult;
+import org.knowm.xchange.huobi.dto.trade.HuobiTrade;
+import org.knowm.xchange.huobi.dto.trade.results.*;
 
 class HuobiTradeServiceRaw extends HuobiBaseService {
 
@@ -113,5 +116,46 @@ class HuobiTradeServiceRaw extends HuobiBaseService {
       orders.add(checkResult(orderInfoResult));
     }
     return orders;
+  }
+
+  private DateFormat tradesDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+  HuobiTrade[] getHuobiTrades(CurrencyPair currencyPair,
+                              String types,
+                              Date startDate,
+                              Date endDate,
+                              String from,
+                              String direct,
+                              Integer size) throws IOException {
+
+    String startDateString = null;
+    if (startDate != null) {
+      startDateString = tradesDateFormat.format(startDate);
+    }
+    String endDateString = null;
+    if (endDate != null) {
+      endDateString = tradesDateFormat.format(endDate);
+    }
+    String sizeString = null;
+    if (size != null) {
+      sizeString = size.toString();
+    }
+
+    HuobiTradesResult result = huobi.getTrades(
+            HuobiUtils.createHuobiCurrencyPair(currencyPair),
+            types,
+            startDateString,
+            endDateString,
+            from,
+            direct,
+            sizeString,
+            exchange.getExchangeSpecification().getApiKey(),
+            HuobiDigest.HMAC_SHA_256,
+            2,
+            HuobiUtils.createUTCDate(exchange.getNonceFactory()),
+            signatureCreator
+    );
+
+    return checkResult(result);
   }
 }

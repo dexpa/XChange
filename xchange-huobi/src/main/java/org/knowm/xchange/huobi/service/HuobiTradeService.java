@@ -2,15 +2,17 @@ package org.knowm.xchange.huobi.service;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
+
 import org.knowm.xchange.Exchange;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.trade.*;
+import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.huobi.HuobiAdapters;
 import org.knowm.xchange.huobi.dto.trade.HuobiOrder;
 import org.knowm.xchange.service.trade.TradeService;
-import org.knowm.xchange.service.trade.params.CancelOrderByIdParams;
-import org.knowm.xchange.service.trade.params.CancelOrderParams;
-import org.knowm.xchange.service.trade.params.TradeHistoryParams;
+import org.knowm.xchange.service.trade.params.*;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
 
 public class HuobiTradeService extends HuobiTradeServiceRaw implements TradeService {
@@ -21,7 +23,32 @@ public class HuobiTradeService extends HuobiTradeServiceRaw implements TradeServ
 
   @Override
   public UserTrades getTradeHistory(TradeHistoryParams tradeHistoryParams) throws IOException {
-    return null;
+    CurrencyPair currencyPair = null;
+    if(tradeHistoryParams instanceof TradeHistoryParamCurrencyPair) {
+      currencyPair = ((TradeHistoryParamCurrencyPair) tradeHistoryParams).getCurrencyPair();
+    }
+    if(currencyPair == null) {
+      throw new ExchangeException("tradeHistoryParams must implements TradeHistoryParamCurrencyPair");
+    }
+    Date startDate = null;
+    Date endDate = null;
+    if(tradeHistoryParams instanceof TradeHistoryParamsTimeSpan) {
+      startDate = ((TradeHistoryParamsTimeSpan) tradeHistoryParams).getStartTime();
+      endDate = ((TradeHistoryParamsTimeSpan) tradeHistoryParams).getEndTime();
+    }
+    Integer size = null;
+    if(tradeHistoryParams instanceof TradeHistoryParamLimit) {
+      size = ((TradeHistoryParamLimit) tradeHistoryParams).getLimit();
+    }
+    return HuobiAdapters.adaptTrades(getHuobiTrades(
+            currencyPair,
+            null,
+            startDate,
+            endDate,
+            null,
+            null,
+            size
+    ));
   }
 
   @Override

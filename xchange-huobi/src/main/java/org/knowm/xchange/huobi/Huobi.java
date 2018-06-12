@@ -9,10 +9,7 @@ import org.knowm.xchange.huobi.dto.marketdata.results.HuobiAssetPairsResult;
 import org.knowm.xchange.huobi.dto.marketdata.results.HuobiAssetsResult;
 import org.knowm.xchange.huobi.dto.marketdata.results.HuobiTickerResult;
 import org.knowm.xchange.huobi.dto.trade.HuobiCreateOrderRequest;
-import org.knowm.xchange.huobi.dto.trade.results.HuobiCancelOrderResult;
-import org.knowm.xchange.huobi.dto.trade.results.HuobiOrderInfoResult;
-import org.knowm.xchange.huobi.dto.trade.results.HuobiOrderResult;
-import org.knowm.xchange.huobi.dto.trade.results.HuobiOrdersResult;
+import org.knowm.xchange.huobi.dto.trade.results.*;
 import si.mazi.rescu.ParamsDigest;
 
 @Path("/")
@@ -62,6 +59,23 @@ public interface Huobi {
       @QueryParam("Timestamp") String nonce,
       @QueryParam("Signature") ParamsDigest signature)
       throws IOException;
+
+  @GET
+  @Path("v1/order/matchresults")
+  HuobiTradesResult getTrades(
+          @QueryParam("symbol") String symbol,
+          @QueryParam("types") String types,
+          @QueryParam("start-date") String startDate,
+          @QueryParam("end-date") String endDate,
+          @QueryParam("from") String from,
+          @QueryParam("direct") String direct,
+          @QueryParam("size") String size,
+          @QueryParam("AccessKeyId") String apiKey,
+          @QueryParam("SignatureMethod") String signatureMethod,
+          @QueryParam("SignatureVersion") int signatureVersion,
+          @QueryParam("Timestamp") String nonce,
+          @QueryParam("Signature") ParamsDigest signature)
+          throws IOException;
 
   @GET
   @Path("v1/order/orders/{order-id}")

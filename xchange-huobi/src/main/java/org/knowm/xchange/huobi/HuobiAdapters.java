@@ -12,18 +12,18 @@ import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.account.Balance;
 import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.dto.marketdata.Ticker;
+import org.knowm.xchange.dto.marketdata.Trades;
 import org.knowm.xchange.dto.meta.CurrencyMetaData;
 import org.knowm.xchange.dto.meta.CurrencyPairMetaData;
 import org.knowm.xchange.dto.meta.ExchangeMetaData;
-import org.knowm.xchange.dto.trade.LimitOrder;
-import org.knowm.xchange.dto.trade.MarketOrder;
-import org.knowm.xchange.dto.trade.OpenOrders;
+import org.knowm.xchange.dto.trade.*;
 import org.knowm.xchange.huobi.dto.account.HuobiBalanceRecord;
 import org.knowm.xchange.huobi.dto.account.HuobiBalanceSum;
 import org.knowm.xchange.huobi.dto.marketdata.HuobiAsset;
 import org.knowm.xchange.huobi.dto.marketdata.HuobiAssetPair;
 import org.knowm.xchange.huobi.dto.marketdata.HuobiTicker;
 import org.knowm.xchange.huobi.dto.trade.HuobiOrder;
+import org.knowm.xchange.huobi.dto.trade.HuobiTrade;
 
 public class HuobiAdapters {
 
@@ -137,6 +137,23 @@ public class HuobiAdapters {
     return order;
   }
 
+  private static UserTrade adaptTrade(HuobiTrade huobiTrade) {
+
+    CurrencyPair pair = adaptCurrencyPair(huobiTrade.getSymbol());
+
+    return new UserTrade(
+      adaptOrderType(huobiTrade.getType()),
+      huobiTrade.getFilledAmount(),
+      pair,
+      huobiTrade.getPrice(),
+      huobiTrade.getCreatedAt(),
+      Long.toString(huobiTrade.getId()),
+      Long.toString(huobiTrade.getOrderId()),
+      huobiTrade.getFilledFees(),
+      pair.counter
+    );
+  }
+
   private static OrderStatus adaptOrderStatus(String huobiStatus) {
     OrderStatus result = OrderStatus.UNKNOWN;
     switch (huobiStatus) {
@@ -175,5 +192,13 @@ public class HuobiAdapters {
       orders.add(adaptOrder(order));
     }
     return orders;
+  }
+
+  public static UserTrades adaptTrades(HuobiTrade[] huobiTrades) {
+    List<UserTrade> trades = new ArrayList<>();
+    for(HuobiTrade huobiTrade : huobiTrades) {
+      trades.add(adaptTrade(huobiTrade));
+    }
+    return new UserTrades(trades, Trades.TradeSortType.SortByTimestamp);
   }
 }
