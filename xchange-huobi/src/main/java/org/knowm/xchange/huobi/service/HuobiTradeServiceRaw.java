@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.knowm.xchange.Exchange;
@@ -29,7 +30,14 @@ class HuobiTradeServiceRaw extends HuobiBaseService {
     String states = "pre-submitted,submitted,partial-filled,partial-canceled,filled,canceled";
     HuobiOrdersResult result =
         huobi.getOpenOrders(
+            null,
+            null,
+            null,
+            null,
             states,
+            null,
+            null,
+            null,
             exchange.getExchangeSpecification().getApiKey(),
             HuobiDigest.HMAC_SHA_256,
             2,
@@ -117,6 +125,46 @@ class HuobiTradeServiceRaw extends HuobiBaseService {
     }
     return orders;
   }
+
+    List<HuobiOrder> getHuobiOrder(CurrencyPair currencyPair,
+                                   String types,
+                                   Date startDate,
+                                   Date endDate,
+                                   String from,
+                                   String direct,
+                                   Integer size) throws IOException {
+        String states = "pre-submitted,submitted,partial-filled,partial-canceled,filled,canceled";
+        String startDateString = null;
+        if (startDate != null) {
+            startDateString = tradesDateFormat.format(startDate);
+        }
+        String endDateString = null;
+        if (endDate != null) {
+            endDateString = tradesDateFormat.format(endDate);
+        }
+        String sizeString = null;
+        if (size != null) {
+            sizeString = size.toString();
+        }
+
+        HuobiOrdersResult result =
+                huobi.getOpenOrders(
+                        HuobiUtils.createHuobiCurrencyPair(currencyPair),
+                        types,
+                        startDateString,
+                        endDateString,
+                        states,
+                        from,
+                        direct,
+                        sizeString,
+                        exchange.getExchangeSpecification().getApiKey(),
+                        HuobiDigest.HMAC_SHA_256,
+                        2,
+                        HuobiUtils.createUTCDate(exchange.getNonceFactory()),
+                        signatureCreator);
+
+        return new ArrayList<>(Arrays.asList((checkResult(result))));
+    }
 
   private DateFormat tradesDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 

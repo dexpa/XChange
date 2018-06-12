@@ -1,8 +1,10 @@
 package org.knowm.xchange.huobi.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.currency.CurrencyPair;
@@ -11,9 +13,12 @@ import org.knowm.xchange.dto.trade.*;
 import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.huobi.HuobiAdapters;
 import org.knowm.xchange.huobi.dto.trade.HuobiOrder;
+import org.knowm.xchange.huobi.service.trade.params.orders.HuobiOrderQueryParam;
 import org.knowm.xchange.service.trade.TradeService;
 import org.knowm.xchange.service.trade.params.*;
 import org.knowm.xchange.service.trade.params.orders.OpenOrdersParams;
+import org.knowm.xchange.service.trade.params.orders.OrderQueryParamCurrencyPair;
+import org.knowm.xchange.service.trade.params.orders.OrderQueryParams;
 
 public class HuobiTradeService extends HuobiTradeServiceRaw implements TradeService {
 
@@ -54,6 +59,47 @@ public class HuobiTradeService extends HuobiTradeServiceRaw implements TradeServ
   @Override
   public Collection<Order> getOrder(String... orderIds) throws IOException {
     return HuobiAdapters.adaptOrders(getHuobiOrder(orderIds));
+  }
+
+  @Override
+  public Collection<Order> getOrder(OrderQueryParams... orderQueryParams) throws IOException {
+
+      List<Order> orders = new ArrayList<>();
+      for(OrderQueryParams param : orderQueryParams) {
+          if(param.getOrderId() != null) {
+              orders.addAll(getOrder(param.getOrderId()));
+          } else {
+              CurrencyPair currencyPair = null;
+              Date startDate = null;
+              Date endDate = null;
+              Integer size = null;
+
+              if(param instanceof HuobiOrderQueryParam) {
+                  HuobiOrderQueryParam huobiParam = (HuobiOrderQueryParam) param;
+                  currencyPair = huobiParam.getCurrencyPair();
+                  startDate = huobiParam.getStartDate();
+                  endDate = huobiParam.getEndDate();
+                  size = huobiParam.getSize();
+              } else if (param instanceof OrderQueryParamCurrencyPair) {
+                  currencyPair = ((OrderQueryParamCurrencyPair) param).getCurrencyPair();
+              }
+              if(currencyPair == null) {
+                  throw new ExchangeException("orderQueryParams must implements OrderQueryParamCurrencyPair");
+              }
+              List<HuobiOrder> huobiOrders = getHuobiOrder(
+                  currencyPair,
+                  null,
+                  startDate,
+                  endDate,
+                  null,
+                  null,
+                  size
+              );
+              orders.addAll(HuobiAdapters.adaptOrders(huobiOrders));
+          }
+      }
+
+      return orders;
   }
 
   @Override
