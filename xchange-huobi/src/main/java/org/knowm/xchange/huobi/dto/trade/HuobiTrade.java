@@ -28,7 +28,7 @@ public class HuobiTrade {
         @JsonProperty("price") BigDecimal price,
         @JsonProperty("filled-amount") BigDecimal filledAmount,
         @JsonProperty("filled-fees") BigDecimal filledFees,
-        @JsonProperty("created-at") Date createdAt
+        @JsonProperty("created-at") Long createdAt
     ) {
         this.id = id;
         this.orderId = orderId;
@@ -39,7 +39,7 @@ public class HuobiTrade {
         this.price = price;
         this.filledAmount = filledAmount;
         this.filledFees = filledFees;
-        this.createdAt = createdAt;
+        this.createdAt = createdAt != null ? new Date(createdAt) : null;
     }
 
     public long getId() {

@@ -24,12 +24,12 @@ public class HuobiOrder {
   public HuobiOrder(
       @JsonProperty("account-id") long accountID,
       @JsonProperty("amount") BigDecimal amount,
-      @JsonProperty("canceled-at") Date canceledAt,
-      @JsonProperty("created-at") Date createdAt,
+      @JsonProperty("canceled-at") Long canceledAt,
+      @JsonProperty("created-at") Long createdAt,
       @JsonProperty("field-amount") BigDecimal fieldAmount,
       @JsonProperty("field-cash-amount") BigDecimal fieldCashAmount,
       @JsonProperty("field-fees") BigDecimal fieldFees,
-      @JsonProperty("finished-at") Date finishedAt,
+      @JsonProperty("finished-at") Long finishedAt,
       @JsonProperty("id") long id,
       @JsonProperty("price") BigDecimal price,
       @JsonProperty("source") String source,
@@ -38,12 +38,12 @@ public class HuobiOrder {
       @JsonProperty("type") String type) {
     this.accountID = accountID;
     this.amount = amount;
-    this.canceledAt = canceledAt;
-    this.createdAt = createdAt;
+    this.canceledAt = canceledAt != null ? new Date(canceledAt) : null;
+    this.createdAt = createdAt != null ? new Date(createdAt) : null;
     this.fieldAmount = fieldAmount;
     this.fieldCashAmount = fieldCashAmount;
     this.fieldFees = fieldFees;
-    this.finishedAt = finishedAt;
+    this.finishedAt = finishedAt != null ? new Date(finishedAt) : null;
     this.id = id;
     this.price = price;
     this.source = source;
