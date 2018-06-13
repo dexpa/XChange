@@ -119,7 +119,17 @@ public class HuobiAdapters {
     OrderType orderType = adaptOrderType(openOrder.getType());
     CurrencyPair currencyPair = adaptCurrencyPair(openOrder.getSymbol());
     if (openOrder.isMarket()) {
-      order = new MarketOrder(orderType, openOrder.getAmount(), currencyPair, openOrder.getCreatedAt());
+      order = new MarketOrder(
+              orderType,
+              openOrder.getAmount(),
+              currencyPair,
+              String.valueOf(openOrder.getId()),
+              openOrder.getCreatedAt(),
+              openOrder.getPrice(),
+              openOrder.getFieldAmount(),
+              openOrder.getFieldFees(),
+              adaptOrderStatus(openOrder.getState())
+      );
     }
     if (openOrder.isLimit()) {
       order =
@@ -129,10 +139,12 @@ public class HuobiAdapters {
               currencyPair,
               String.valueOf(openOrder.getId()),
               openOrder.getCreatedAt(),
-              openOrder.getPrice());
-    }
-    if (order != null) {
-      order.setOrderStatus(adaptOrderStatus(openOrder.getState()));
+              openOrder.getPrice(),
+              openOrder.getPrice(),
+              openOrder.getFieldAmount(),
+              openOrder.getFieldFees(),
+              adaptOrderStatus(openOrder.getState())
+          );
     }
     return order;
   }
@@ -140,6 +152,8 @@ public class HuobiAdapters {
   private static UserTrade adaptTrade(HuobiTrade huobiTrade) {
 
     CurrencyPair pair = adaptCurrencyPair(huobiTrade.getSymbol());
+
+    Order.OrderType orderType = adaptOrderType(huobiTrade.getType());
 
     return new UserTrade(
       adaptOrderType(huobiTrade.getType()),
@@ -150,7 +164,7 @@ public class HuobiAdapters {
       Long.toString(huobiTrade.getId()),
       Long.toString(huobiTrade.getOrderId()),
       huobiTrade.getFilledFees(),
-      pair.counter
+      orderType == OrderType.BID ? pair.base : pair.counter
     );
   }
 
@@ -183,7 +197,7 @@ public class HuobiAdapters {
   }
 
   private static OrderType adaptOrderType(String orderType) {
-    return orderType.substring(1, 3).equals("buy") ? OrderType.BID : OrderType.ASK;
+    return orderType.substring(0, 3).equals("buy") ? OrderType.BID : OrderType.ASK;
   }
 
   public static List<Order> adaptOrders(List<HuobiOrder> huobiOrders) {
