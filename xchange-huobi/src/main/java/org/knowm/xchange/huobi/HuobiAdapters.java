@@ -119,7 +119,7 @@ public class HuobiAdapters {
     OrderType orderType = adaptOrderType(openOrder.getType());
     CurrencyPair currencyPair = adaptCurrencyPair(openOrder.getSymbol());
     if (openOrder.isMarket()) {
-      order = new MarketOrder(orderType, openOrder.getAmount(), currencyPair);
+      order = new MarketOrder(orderType, openOrder.getAmount(), currencyPair, openOrder.getCreatedAt());
     }
     if (openOrder.isLimit()) {
       order =
