@@ -24,15 +24,15 @@ public class HuobiAccount {
     return id;
   }
 
-  private String getState() {
+  public String getState() {
     return state;
   }
 
-  private String getType() {
+  public String getType() {
     return type;
   }
 
-  private String getUserID() {
+  public String getUserID() {
     return userID;
   }
 
