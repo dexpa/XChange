@@ -1,5 +1,6 @@
 package org.knowm.xchange.huobi;
 
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -125,7 +126,7 @@ public class HuobiAdapters {
               currencyPair,
               String.valueOf(openOrder.getId()),
               openOrder.getCreatedAt(),
-              openOrder.getPrice(),
+              openOrder.getFieldCashAmount() != null ? openOrder.getFieldCashAmount().divide(openOrder.getAmount(), 8, RoundingMode.HALF_UP) : null,
               openOrder.getFieldAmount(),
               openOrder.getFieldFees(),
               adaptOrderStatus(openOrder.getState())
@@ -140,7 +141,7 @@ public class HuobiAdapters {
               String.valueOf(openOrder.getId()),
               openOrder.getCreatedAt(),
               openOrder.getPrice(),
-              openOrder.getPrice(),
+              openOrder.getFieldCashAmount() != null ? openOrder.getFieldCashAmount().divide(openOrder.getAmount(), 8, RoundingMode.HALF_UP) : null,
               openOrder.getFieldAmount(),
               openOrder.getFieldFees(),
               adaptOrderStatus(openOrder.getState())
