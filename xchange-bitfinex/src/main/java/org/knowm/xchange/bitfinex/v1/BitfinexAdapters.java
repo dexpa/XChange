@@ -53,9 +53,9 @@ public final class BitfinexAdapters {
 
   public static String adaptBitfinexCurrency(String bitfinexSymbol) {
     String currency = bitfinexSymbol.toUpperCase();
-    if (currency.equals("DSH")) {
-      currency = "DASH";
-    }
+//    if (currency.equals("DSH")) {
+//      currency = "DASH";
+//    }
     return currency;
   }
 
