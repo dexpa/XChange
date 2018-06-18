@@ -11,9 +11,9 @@ public final class BitfinexUtils {
 
   public static String adaptXchangeCurrency(String xchangeSymbol) {
     String currency = xchangeSymbol.toLowerCase();
-    if (currency.equals("dash")) {
-      currency = "dsh";
-    }
+//    if (currency.equals("dash")) {
+//      currency = "dsh";
+//    }
     return currency;
   }
 
