@@ -18,6 +18,7 @@ import org.knowm.xchange.dto.meta.CurrencyMetaData;
 import org.knowm.xchange.dto.meta.CurrencyPairMetaData;
 import org.knowm.xchange.dto.meta.ExchangeMetaData;
 import org.knowm.xchange.dto.trade.*;
+import org.knowm.xchange.exceptions.ExchangeException;
 import org.knowm.xchange.huobi.dto.account.HuobiBalanceRecord;
 import org.knowm.xchange.huobi.dto.account.HuobiBalanceSum;
 import org.knowm.xchange.huobi.dto.marketdata.HuobiAsset;
@@ -76,14 +77,16 @@ public class HuobiAdapters {
   public static Wallet adaptWallet(Map<String, HuobiBalanceSum> huobiWallet) {
     List<Balance> balances = new ArrayList<>(huobiWallet.size());
     for (Map.Entry<String, HuobiBalanceSum> record : huobiWallet.entrySet()) {
-      Currency currency = adaptCurrency(record.getKey());
-      Balance balance =
-          new Balance(
-              currency,
-              record.getValue().getTotal(),
-              record.getValue().getAvailable(),
-              record.getValue().getFrozen());
-      balances.add(balance);
+      try {
+        Currency currency = adaptCurrency(record.getKey());
+        Balance balance =
+                new Balance(
+                        currency,
+                        record.getValue().getTotal(),
+                        record.getValue().getAvailable(),
+                        record.getValue().getFrozen());
+        balances.add(balance);
+      } catch (ExchangeException ignored) { /* ignore cause some exchange pair break this code */ }
     }
     return new Wallet(balances);
   }
