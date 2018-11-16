@@ -59,6 +59,11 @@ lazy val `xchange-okcoin` = (project in file("xchange-okcoin")).settings(
     publishArtifact in (Compile, packageDoc) := false
 ).dependsOn(`xchange-core`)
 
+lazy val `xchange-kraken` = (project in file("xchange-kraken")).settings(
+    sources in (Compile, doc) := Seq.empty,
+    publishArtifact in (Compile, packageDoc) := false
+).dependsOn(`xchange-core`)
+
 lazy val `xchange` = (project in file(".")).dependsOn(
     `xchange-core`,
     `xchange-binance`,
@@ -68,7 +73,8 @@ lazy val `xchange` = (project in file(".")).dependsOn(
     `xchange-bittrex`,
     `xchange-poloniex`,
     `xchange-huobi`,
-    `xchange-okcoin`
+    `xchange-okcoin`,
+    `xchange-kraken`
 )
 
 sources in (Compile, doc) := Seq.empty
