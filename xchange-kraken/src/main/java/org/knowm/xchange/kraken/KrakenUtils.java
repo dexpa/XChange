@@ -46,7 +46,8 @@ public class KrakenUtils {
   }
 
   public static String createKrakenCurrencyPair(CurrencyPair currencyPair) {
-    return assetPairMapReverse.get(currencyPair);
+    return currencyPair.base.getCurrencyCode() + currencyPair.counter.getCurrencyCode();
+    //return assetPairMapReverse.get(currencyPair);
   }
 
   public static CurrencyPair translateKrakenCurrencyPair(String currencyPairIn) {
