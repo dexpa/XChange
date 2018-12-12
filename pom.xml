@@ -99,7 +99,6 @@
         <module>xchange-liqui</module>
         <module>xchange-okcoin</module>
         <module>xchange-poloniex</module>
-        <module>xchange-wex</module>
         <module>xchange-yobit</module>
         <module>xchange-zaif</module>
     </modules>
