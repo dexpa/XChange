@@ -87,7 +87,6 @@
 
     <modules>
         <module>xchange-binance</module>
-        <module>xchange-bitcoinde</module>
         <module>xchange-bitcoinium</module>
         <module>xchange-bitcointoyou</module>
         <module>xchange-bitfinex</module>
