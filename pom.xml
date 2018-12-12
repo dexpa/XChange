@@ -97,7 +97,6 @@
         <module>xchange-kraken</module>
         <module>xchange-kucoin</module>
         <module>xchange-liqui</module>
-        <module>xchange-livecoin</module>
         <module>xchange-luno</module>
         <module>xchange-mercadobitcoin</module>
         <module>xchange-okcoin</module>
