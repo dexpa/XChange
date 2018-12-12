@@ -92,7 +92,6 @@
         <module>xchange-bittrex</module>
         <module>xchange-coinbase</module>
         <module>xchange-core</module>
-        <module>xchange-gemini</module>
         <module>xchange-hitbtc</module>
         <module>xchange-huobi</module>
         <module>xchange-itbit</module>
