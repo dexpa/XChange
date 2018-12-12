@@ -95,7 +95,6 @@
         <module>xchange-hitbtc</module>
         <module>xchange-huobi</module>
         <module>xchange-kraken</module>
-        <module>xchange-kuna</module>
         <module>xchange-kucoin</module>
         <module>xchange-lakebtc</module>
         <module>xchange-liqui</module>
