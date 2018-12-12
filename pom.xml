@@ -99,7 +99,6 @@
         <module>xchange-liqui</module>
         <module>xchange-okcoin</module>
         <module>xchange-poloniex</module>
-        <module>xchange-ripple</module>
         <module>xchange-taurus</module>
         <module>xchange-therock</module>
         <module>xchange-truefx</module>
