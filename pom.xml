@@ -93,7 +93,6 @@
         <module>xchange-coinbase</module>
         <module>xchange-core</module>
         <module>xchange-cryptopia</module>
-        <module>xchange-cryptonit</module>
         <module>xchange-dsx</module>
         <module>xchange-empoex</module>
         <module>xchange-gatecoin</module>
