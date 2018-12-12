@@ -98,7 +98,6 @@
         <module>xchange-kucoin</module>
         <module>xchange-liqui</module>
         <module>xchange-okcoin</module>
-        <module>xchange-paribu</module>
         <module>xchange-paymium</module>
         <module>xchange-poloniex</module>
         <module>xchange-quoine</module>
