@@ -92,7 +92,6 @@
         <module>xchange-bittrex</module>
         <module>xchange-coinbase</module>
         <module>xchange-core</module>
-        <module>xchange-cryptofacilities</module>
         <module>xchange-cryptopia</module>
         <module>xchange-cryptonit</module>
         <module>xchange-dsx</module>
