@@ -90,8 +90,6 @@
         <module>xchange-bitfinex</module>
         <module>xchange-bitstamp</module>
         <module>xchange-bittrex</module>
-        <module>xchange-blockchain</module>
-        <module>xchange-btcc</module>
         <module>xchange-btcmarkets</module>
         <module>xchange-btctrade</module>
         <module>xchange-btcturk</module>
