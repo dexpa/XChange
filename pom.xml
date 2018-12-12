@@ -94,7 +94,6 @@
         <module>xchange-core</module>
         <module>xchange-hitbtc</module>
         <module>xchange-huobi</module>
-        <module>xchange-koineks</module>
         <module>xchange-koinim</module>
         <module>xchange-kraken</module>
         <module>xchange-kuna</module>
