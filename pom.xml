@@ -91,7 +91,6 @@
         <module>xchange-bitstamp</module>
         <module>xchange-bittrex</module>
         <module>xchange-coinbase</module>
-        <module>xchange-coinegg</module>
         <module>xchange-coinmarketcap</module>
         <module>xchange-coinfloor</module>
         <module>xchange-coinmate</module>
