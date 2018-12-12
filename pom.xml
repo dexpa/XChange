@@ -87,7 +87,6 @@
 
     <modules>
         <module>xchange-binance</module>
-        <module>xchange-bitcoinaverage</module>
         <module>xchange-bitcoincharts</module>
         <module>xchange-bitcoincore</module>
         <module>xchange-bitcoinde</module>
