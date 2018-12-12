@@ -90,7 +90,6 @@
         <module>xchange-bitfinex</module>
         <module>xchange-bitstamp</module>
         <module>xchange-bittrex</module>
-        <module>xchange-btcturk</module>
         <module>xchange-campbx</module>
         <module>xchange-ccex</module>
         <module>xchange-cexio</module>
