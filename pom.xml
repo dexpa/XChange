@@ -86,7 +86,6 @@
     </ciManagement>
 
     <modules>
-        <module>xchange-abucoins</module>
         <module>xchange-acx</module>
         <module>xchange-anx</module>
         <module>xchange-bibox</module>
@@ -126,7 +125,6 @@
         <module>xchange-cryptonit</module>
         <module>xchange-dsx</module>
         <module>xchange-empoex</module>
-        <module>xchange-examples</module>
         <module>xchange-gatecoin</module>
         <module>xchange-gateio</module>
         <module>xchange-gdax</module>
