@@ -88,7 +88,6 @@
     <modules>
         <module>xchange-binance</module>
         <module>xchange-bitfinex</module>
-        <module>xchange-bitso</module>
         <module>xchange-bitstamp</module>
         <module>xchange-bittrex</module>
         <module>xchange-bitz</module>
