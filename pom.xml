@@ -100,7 +100,6 @@
         <module>xchange-okcoin</module>
         <module>xchange-poloniex</module>
         <module>xchange-quoine</module>
-        <module>xchange-quadrigacx</module>
         <module>xchange-ripple</module>
         <module>xchange-taurus</module>
         <module>xchange-therock</module>
