@@ -1,3 +1,4 @@
+
 name := "xchange"
 
 version := "4.3.5"
@@ -24,7 +25,7 @@ lazy val `xchange-binance` = (project in file("xchange-binance")).settings(
     publishArtifact in (Compile, packageDoc) := false
 ).dependsOn(`xchange-core`)
 
-lazy val `xchange-hitbtc` = (project in file("xchange-hitbtc")).settings(
+lazy val `xchange-bitfinex` = (project in file("xchange-bitfinex")).settings(
     sources in (Compile, doc) := Seq.empty,
     publishArtifact in (Compile, packageDoc) := false
 ).dependsOn(`xchange-core`)
@@ -39,12 +40,12 @@ lazy val `xchange-bittrex` = (project in file("xchange-bittrex")).settings(
     publishArtifact in (Compile, packageDoc) := false
 ).dependsOn(`xchange-core`)
 
-lazy val `xchange-bitfinex` = (project in file("xchange-bitfinex")).settings(
+lazy val `xchange-coinbase` = (project in file("xchange-coinbase")).settings(
     sources in (Compile, doc) := Seq.empty,
     publishArtifact in (Compile, packageDoc) := false
 ).dependsOn(`xchange-core`)
 
-lazy val `xchange-poloniex` = (project in file("xchange-poloniex")).settings(
+lazy val `xchange-hitbtc` = (project in file("xchange-hitbtc")).settings(
     sources in (Compile, doc) := Seq.empty,
     publishArtifact in (Compile, packageDoc) := false
 ).dependsOn(`xchange-core`)
@@ -54,27 +55,46 @@ lazy val `xchange-huobi` = (project in file("xchange-huobi")).settings(
     publishArtifact in (Compile, packageDoc) := false
 ).dependsOn(`xchange-core`)
 
-lazy val `xchange-okcoin` = (project in file("xchange-okcoin")).settings(
-    sources in (Compile, doc) := Seq.empty,
-    publishArtifact in (Compile, packageDoc) := false
-).dependsOn(`xchange-core`)
-
 lazy val `xchange-kraken` = (project in file("xchange-kraken")).settings(
     sources in (Compile, doc) := Seq.empty,
     publishArtifact in (Compile, packageDoc) := false
 ).dependsOn(`xchange-core`)
 
+lazy val `xchange-kucoin` = (project in file("xchange-kucoin")).settings(
+    sources in (Compile, doc) := Seq.empty,
+    publishArtifact in (Compile, packageDoc) := false
+).dependsOn(`xchange-core`)
+
+lazy val `xchange-liqui` = (project in file("xchange-liqui")).settings(
+    sources in (Compile, doc) := Seq.empty,
+    publishArtifact in (Compile, packageDoc) := false
+).dependsOn(`xchange-core`)
+
+lazy val `xchange-okcoin` = (project in file("xchange-okcoin")).settings(
+    sources in (Compile, doc) := Seq.empty,
+    publishArtifact in (Compile, packageDoc) := false
+).dependsOn(`xchange-core`)
+
+lazy val `xchange-poloniex` = (project in file("xchange-poloniex")).settings(
+    sources in (Compile, doc) := Seq.empty,
+    publishArtifact in (Compile, packageDoc) := false
+).dependsOn(`xchange-core`)
+
+
 lazy val `xchange` = (project in file(".")).dependsOn(
-    `xchange-core`,
     `xchange-binance`,
-    `xchange-hitbtc`,
     `xchange-bitfinex`,
     `xchange-bitstamp`,
     `xchange-bittrex`,
-    `xchange-poloniex`,
+    `xchange-coinbase`,
+    `xchange-core`,
+    `xchange-hitbtc`,
     `xchange-huobi`,
+    `xchange-kraken`,
+    `xchange-kucoin`,
+    `xchange-liqui`,
     `xchange-okcoin`,
-    `xchange-kraken`
+    `xchange-poloniex`
 )
 
 sources in (Compile, doc) := Seq.empty
