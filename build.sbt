@@ -10,7 +10,8 @@ resolvers += Resolver.jcenterRepo
 val dependencies = Seq(
     "org.apache.commons" % "commons-lang3" % "3.7",
     "javax.ws.rs" % "javax.ws.rs-api" % "2.1" artifacts( Artifact("javax.ws.rs-api", "jar", "jar")),
-    "com.github.mmazi" % "rescu" % "2.0.2" exclude("javax.ws.rs", "javax.ws.rs-api"),
+    "com.github.mmazi" % "rescu" % "2.0.2" exclude("javax.ws.rs", "javax.ws.rs-api") exclude("com.fasterxml.jackson.core", "*"),
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.8.11",
     "commons-io" % "commons-io" % "2.6",
     "com.auth0" % "java-jwt" % "3.1.0"
 )
