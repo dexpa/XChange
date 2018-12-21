@@ -11,7 +11,8 @@ val dependencies = Seq(
     "org.apache.commons" % "commons-lang3" % "3.7",
     "javax.ws.rs" % "javax.ws.rs-api" % "2.1" artifacts( Artifact("javax.ws.rs-api", "jar", "jar")),
     "com.github.mmazi" % "rescu" % "2.0.2" exclude("javax.ws.rs", "javax.ws.rs-api"),
-    "commons-io" % "commons-io" % "2.6"
+    "commons-io" % "commons-io" % "2.6",
+    "com.auth0" % "java-jwt" % "3.1.0"
 )
 
 lazy val `xchange-core` = (project in file("xchange-core")).settings(
@@ -80,6 +81,11 @@ lazy val `xchange-poloniex` = (project in file("xchange-poloniex")).settings(
     publishArtifact in (Compile, packageDoc) := false
 ).dependsOn(`xchange-core`)
 
+lazy val `xchange-quoine` = (project in file("xchange-quoine")).settings(
+    sources in (Compile, doc) := Seq.empty,
+    publishArtifact in (Compile, packageDoc) := false
+).dependsOn(`xchange-core`)
+
 
 lazy val `xchange` = (project in file(".")).dependsOn(
     `xchange-binance`,
@@ -94,7 +100,8 @@ lazy val `xchange` = (project in file(".")).dependsOn(
     `xchange-kucoin`,
     `xchange-liqui`,
     `xchange-okcoin`,
-    `xchange-poloniex`
+    `xchange-poloniex`,
+    `xchange-quoine`
 )
 
 sources in (Compile, doc) := Seq.empty
