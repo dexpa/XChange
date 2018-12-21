@@ -1,6 +1,7 @@
 package org.knowm.xchange.quoine.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.knowm.xchange.Exchange;
@@ -17,6 +18,7 @@ import org.knowm.xchange.exceptions.NotAvailableFromExchangeException;
 import org.knowm.xchange.exceptions.NotYetImplementedForExchangeException;
 import org.knowm.xchange.quoine.QuoineAdapters;
 import org.knowm.xchange.quoine.dto.trade.QuoineExecution;
+import org.knowm.xchange.quoine.dto.trade.QuoineOrderDetailsResponse;
 import org.knowm.xchange.quoine.dto.trade.QuoineOrderResponse;
 import org.knowm.xchange.quoine.dto.trade.QuoineOrdersList;
 import org.knowm.xchange.service.trade.TradeService;
@@ -46,7 +48,7 @@ public class QuoineTradeService extends QuoineTradeServiceRaw implements TradeSe
 
   @Override
   public OpenOrders getOpenOrders(OpenOrdersParams params) throws IOException {
-    QuoineOrdersList quoineOrdersList = listQuoineOrders();
+    QuoineOrdersList quoineOrdersList = listQuoineOrders("live");
     return QuoineAdapters.adapteOpenOrders(quoineOrdersList);
   }
 
@@ -54,10 +56,10 @@ public class QuoineTradeService extends QuoineTradeServiceRaw implements TradeSe
   public String placeMarketOrder(MarketOrder marketOrder) throws IOException {
 
     QuoineOrderResponse quoinePlaceOrderResponse =
-        placeMarketOrder(
-            marketOrder.getCurrencyPair(),
-            marketOrder.getType() == OrderType.ASK ? "sell" : "buy",
-            marketOrder.getOriginalAmount());
+            placeMarketOrder(
+                    marketOrder.getCurrencyPair(),
+                    marketOrder.getType() == OrderType.ASK ? "sell" : "buy",
+                    marketOrder.getOriginalAmount());
     return quoinePlaceOrderResponse.getId();
   }
 
@@ -65,11 +67,11 @@ public class QuoineTradeService extends QuoineTradeServiceRaw implements TradeSe
   public String placeLimitOrder(LimitOrder limitOrder) throws IOException {
 
     QuoineOrderResponse quoinePlaceOrderResponse =
-        placeLimitOrder(
-            limitOrder.getCurrencyPair(),
-            limitOrder.getType() == OrderType.ASK ? "sell" : "buy",
-            limitOrder.getOriginalAmount(),
-            limitOrder.getLimitPrice());
+            placeLimitOrder(
+                    limitOrder.getCurrencyPair(),
+                    limitOrder.getType() == OrderType.ASK ? "sell" : "buy",
+                    limitOrder.getOriginalAmount(),
+                    limitOrder.getLimitPrice());
     return quoinePlaceOrderResponse.getId();
   }
 
@@ -117,12 +119,18 @@ public class QuoineTradeService extends QuoineTradeServiceRaw implements TradeSe
       throw new IllegalStateException("Need to specify TradeHistoryParamCurrencyPair");
 
     return new UserTrades(
-        QuoineAdapters.adapt(executions, currencyPair), Trades.TradeSortType.SortByTimestamp);
+            QuoineAdapters.adapt(executions, currencyPair), Trades.TradeSortType.SortByTimestamp);
   }
 
   @Override
   public Collection<Order> getOrder(String... orderIds) throws IOException {
-    throw new NotYetImplementedForExchangeException();
+    List<Order> buffer = new ArrayList<>(orderIds.length);
+    for(String orderId: orderIds) {
+      QuoineOrderDetailsResponse details = getQuoineOrderDetails(orderId);
+      Order adapted = QuoineAdapters.adaptOrderDetails(details);
+      buffer.add(adapted);
+    }
+    return buffer;
   }
 
   @Override
