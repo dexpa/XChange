@@ -1,6 +1,7 @@
 package org.knowm.xchange.huobi.service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ class HuobiTradeServiceRaw extends HuobiBaseService {
   }
 
   HuobiOrder[] getHuobiOpenOrders() throws IOException {
-    String states = "pre-submitted,submitted,partial-filled,partial-canceled,filled,canceled";
+    String states = "pre-submitted,submitted,partial-filled";
     HuobiOrdersResult result =
         huobi.getOpenOrders(
             null,
@@ -71,8 +72,10 @@ class HuobiTradeServiceRaw extends HuobiBaseService {
     HuobiOrderResult result =
         huobi.placeLimitOrder(
             new HuobiCreateOrderRequest(
-                limitOrder.getId(),
-                limitOrder.getOriginalAmount().toString(),
+                String.valueOf(
+                    ((HuobiAccountServiceRaw) exchange.getAccountService())
+                        .getAccounts()[0].getId()),
+                limitOrder.getOriginalAmount().setScale(4, BigDecimal.ROUND_DOWN).toString(),
                 limitOrder.getLimitPrice().toString(),
                 HuobiUtils.createHuobiCurrencyPair(limitOrder.getCurrencyPair()),
                 type),
@@ -97,8 +100,10 @@ class HuobiTradeServiceRaw extends HuobiBaseService {
     HuobiOrderResult result =
         huobi.placeMarketOrder(
             new HuobiCreateOrderRequest(
-                limitOrder.getId(),
-                limitOrder.getOriginalAmount().toString(),
+                String.valueOf(
+                    ((HuobiAccountServiceRaw) exchange.getAccountService())
+                        .getAccounts()[0].getId()),
+                limitOrder.getOriginalAmount().setScale(4, BigDecimal.ROUND_DOWN).toString(),
                 null,
                 HuobiUtils.createHuobiCurrencyPair(limitOrder.getCurrencyPair()),
                 type),
